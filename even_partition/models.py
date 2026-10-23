@@ -21,6 +21,14 @@ class DPTable:
 
 
 @dataclass(frozen=True)
+class ParityDPTable:
+    even_costs: tuple[Real, ...]
+    odd_costs: tuple[Real, ...]
+    even_predecessors: tuple[int | None, ...]
+    odd_predecessors: tuple[int | None, ...]
+
+
+@dataclass(frozen=True)
 class PartitionResult:
     edges: tuple[Edge, ...]
     cost: Real

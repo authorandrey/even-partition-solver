@@ -4,6 +4,7 @@ from numbers import Real
 
 from even_partition.logger import PartitionLogger
 from even_partition.models import DPTable, Edge, PartitionResult
+from even_partition.validation import validate_length, validate_weights
 
 
 class EvenPartitionSolver:
@@ -13,8 +14,8 @@ class EvenPartitionSolver:
         weights: Mapping[Edge, Real],
         logger: PartitionLogger | None = None,
     ) -> None:
-        self._validate_length(length)
-        self._validate_weights(length, weights)
+        validate_length(length)
+        validate_weights(length, weights)
 
         self.length = length
         self._weights = dict(weights)
@@ -182,38 +183,6 @@ class EvenPartitionSolver:
         if self.table is None:
             return self.build_dp_table()
         return self.table
-
-    @staticmethod
-    def _validate_length(length: int) -> None:
-        if isinstance(length, bool) or not isinstance(length, int):
-            raise TypeError("Длина отрезка должна быть целым числом")
-        if length < 0:
-            raise ValueError("Длина отрезка должна быть неотрицательной")
-
-    @classmethod
-    def _validate_weights(
-        cls,
-        length: int,
-        weights: Mapping[Edge, Real],
-    ) -> None:
-        for edge, weight in weights.items():
-            cls._validate_edge(length, edge)
-            cls._validate_weight(weight)
-
-    @staticmethod
-    def _validate_edge(length: int, edge: Edge) -> None:
-        if not isinstance(edge, tuple) or len(edge) != 2:
-            raise ValueError("Key must ba a pair (start, end)")
-
-        start, end = edge
-
-        if not 0 <= start < end <= length:
-            raise ValueError("0 <= start < end <= length")
-
-    @staticmethod
-    def _validate_weight(weight: Real) -> None:
-        if weight != weight or weight == inf or weight == -inf:
-            raise ValueError("Infinite weight is unavailable")
 
 
 def _is_infinite(value: Real) -> bool:
