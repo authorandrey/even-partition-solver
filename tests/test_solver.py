@@ -45,16 +45,53 @@ class TestEvenPartitionSolver(unittest.TestCase):
 
         self.assertEqual(table["R"], [0])
         self.assertEqual(table["A"], [[]])
+        self.assertEqual(solver.get_optimal_path(), [])
 
     def test_negative_length_is_rejected(self):
         with self.assertRaises(ValueError):
             EvenPartitionSolver(-1, {})
 
-    def test_path_methods_are_not_implemented_yet(self):
-        solver = EvenPartitionSolver(2, {})
+    def test_recovers_single_edge_path(self):
+        solver = EvenPartitionSolver(
+            2,
+            {
+                (0, 1): 5,
+                (1, 2): 5,
+                (0, 2): 2,
+            },
+        )
 
-        with self.assertRaises(NotImplementedError):
-            solver.get_optimal_path()
+        self.assertEqual(solver.get_optimal_path(), [(0, 2)])
+
+    def test_recovers_multi_edge_path_in_forward_order(self):
+        weights = {
+            (0, 1): 2,
+            (1, 2): 3,
+            (2, 3): 1,
+            (0, 2): 10,
+            (1, 3): 10,
+            (0, 3): 100,
+        }
+        solver = EvenPartitionSolver(3, weights)
+
+        self.assertEqual(
+            solver.get_optimal_path(),
+            [(0, 1), (1, 2), (2, 3)],
+        )
+
+    def test_path_is_none_when_end_is_unreachable(self):
+        solver = EvenPartitionSolver(2, {(0, 1): 1})
+
+        self.assertIsNone(solver.get_optimal_path())
+
+    def test_path_method_builds_table_when_needed(self):
+        solver = EvenPartitionSolver(1, {(0, 1): 4})
+
+        self.assertEqual(solver.get_optimal_path(), [(0, 1)])
+        self.assertIsNotNone(solver.table)
+
+    def test_even_path_search_is_not_implemented_yet(self):
+        solver = EvenPartitionSolver(2, {})
 
         with self.assertRaises(NotImplementedError):
             solver.find_optimal_even_path()
